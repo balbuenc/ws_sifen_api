@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using GoldenGateAPI.Data;
+using GoldenGateAPI.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -13,42 +16,70 @@ using Microsoft.Extensions.Logging;
 namespace GoldenGateAPI.Controllers
 {
 
-    
+
 
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsuariosController : ControllerBase
     {
-        Database db = new Database();
-
         private readonly ILogger<UsuariosController> _logger;
+        private readonly IConfiguration _config;
 
-        public UsuariosController(ILogger<UsuariosController> logger)
+       
+
+        private Database db = new Database();
+        private string sqlDataSource;
+
+        public UsuariosController(ILogger<UsuariosController> logger, IConfiguration config)
         {
             _logger = logger;
+            _config = config;
+            sqlDataSource = config.GetConnectionString("DefaultConnection");
         }
+
+
 
         // GET: api/<UsuariosController>
         [HttpGet]
         public ActionResult Get()
         {
+            _logger.LogInformation("Llamado al metodo Get() [HttpGet]");
+            string query = "[dbo].[sp_get_personas]";
 
-            _logger.LogInformation("Get Petition");
-            //return new string[] { "value1", "value2" };
-            string query = "SELECT  [Id],[UserName], [PasswordHash]  FROM [GoldengateDB].[dbo].[AspNetUsers]";
-            DataTable dt = db.GetData(query);
-            var result = new ObjectResult(dt);
-            //return result;
+            DataTable dt = db.GetData(query, sqlDataSource);
+            var result = Tools.DataTableToJSON(dt);
 
-            return Ok("value");
+            return Ok(result);
         }
 
         // GET api/<UsuariosController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public ActionResult GetusuarioByID(int id)
         {
-            return "value";
+            _logger.LogInformation("Llamado al metodo GetusuarioByID(int id) [HttpGet]");
+            string query = "[dbo].[sp_get_persona_by_id]";
+
+           
+           
+
+            
+            var parameters = new IDataParameter[]
+            {
+                new SqlParameter("@Id", id)
+            };
+
+            DataTable dt = db.ExecuteSP(query, sqlDataSource, parameters);
+            if ( dt != null)
+            {
+                var result = Tools.DataTableToJSON(dt);
+                return Ok(result);
+            }
+            else
+            {
+                return NotFound(new { Result = "something went wrong" });
+
+            }
         }
 
         // POST api/<UsuariosController>
