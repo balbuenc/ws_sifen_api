@@ -10,11 +10,7 @@ namespace GoldenGateAPI.Data
 {
     public class Database
     {
-       
-
-
-        //public static string sqlDataSource = "Data Source=172.17.0.3;User ID=sa;Password=WuD5etus;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;Database=GoldengateDB";
-          
+                  
         public DataTable GetData(string str, string sqlDataSource)
         {
             

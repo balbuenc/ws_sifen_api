@@ -55,15 +55,11 @@ namespace GoldenGateAPI.Controllers
 
         // GET api/<UsuariosController>/5
         [HttpGet("{id}")]
-        public ActionResult GetusuarioByID(int id)
+        public ActionResult GetUsuarioByID(int id)
         {
-            _logger.LogInformation("Llamado al metodo GetusuarioByID(int id) [HttpGet]");
+            _logger.LogInformation("Llamado al metodo GetUsuarioByID(int id) [HttpGet]");
             string query = "[dbo].[sp_get_persona_by_id]";
-
-           
-           
-
-            
+                       
             var parameters = new IDataParameter[]
             {
                 new SqlParameter("@Id", id)
