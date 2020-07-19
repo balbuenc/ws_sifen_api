@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using GoldenGateAPI.Helpers;
 using GoldenGateAPI.Entities;
+using GoldenGateAPI.Data;
+using Microsoft.Extensions.Configuration;
+using System.Data;
+
 
 namespace GoldenGateAPI.Services
 {
@@ -14,11 +18,25 @@ namespace GoldenGateAPI.Services
     }
     public class UserService : IUserService
     {
-        // users hardcoded for simplicity, store in a db with hashed passwords in production applications
-        private List<User> _users = new List<User>
+        private readonly IConfiguration _config;
+        private Database db = new Database();
+        private string sqlDataSource;
+        private List<User> _users = new List<User>();
+
+        public UserService(IConfiguration config)
         {
-            new User { Id = 1, FirstName = "Test", LastName = "User", Username = "test", Password = "test" }
-        };
+            _config = config;
+            sqlDataSource = config.GetConnectionString("DefaultConnection");
+
+            //Set User identity data query
+            string query = "secure.sp_get_users";
+            DataTable dt = db.ExecuteSP(query, sqlDataSource);
+          
+            _users = Tools.ConvertDataTable<User>(dt);
+           
+        }
+
+      
 
         public async Task<User> Authenticate(string username, string password)
         {
