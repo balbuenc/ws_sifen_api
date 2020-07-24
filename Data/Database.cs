@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,11 +11,20 @@ namespace GoldenGateAPI.Data
 {
     public class Database
     {
-                  
+        private readonly ILogger _logger;
+        private readonly IConfiguration _config;
+
+        public Database()
+        { }
+
+        public Database(ILogger logger, IConfiguration config)
+        {
+            _logger = logger;
+            _config = config;
+        }
+
         public DataTable GetData(string str, string sqlDataSource)
         {
-            
-            
             DataTable objresutl = new DataTable();
             try
             {
@@ -39,12 +49,10 @@ namespace GoldenGateAPI.Data
             }
 
             return objresutl;
-
         }
 
         public DataTable ExecuteSP(string sp, string sqlDataSource)
         {
-           
             DataTable objresutl = new DataTable();
             try
             {
@@ -74,8 +82,6 @@ namespace GoldenGateAPI.Data
 
         public DataTable ExecuteSP(string str, string sqlDataSource, params IDataParameter[] sqlParams)
         {
-            
-            int rows = -1;
             DataTable objresutl = new DataTable();
             try
             {
@@ -107,10 +113,7 @@ namespace GoldenGateAPI.Data
                 return null;
             }
 
-
             return objresutl;
-
-
         }
     }
 }

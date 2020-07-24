@@ -23,6 +23,7 @@ namespace GoldenGateAPI.Services
         private string sqlDataSource;
         private List<User> _users = new List<User>();
 
+
         public UserService(IConfiguration config)
         {
             _config = config;
