@@ -15,7 +15,7 @@ namespace GoldenGateAPI.Helpers
 
         public static User WithoutPassword(this User user)
         {
-            user.Password = null;
+            user.password = null;
             return user;
         }
     }

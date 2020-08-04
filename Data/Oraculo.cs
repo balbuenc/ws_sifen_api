@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
 
@@ -12,14 +13,16 @@ namespace GoldenGateAPI.Data
     public class Oraculo
     {
         private readonly ILogger _logger;
-        private readonly IConfiguration _config;
-
         private OracleConnection conn;
 
-        public Oraculo(ILogger logger, IConfiguration config)
+        public Oraculo()
         {
-            _logger = logger;
-            _config = config;
+            IServiceCollection serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+
+            var loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
+            _logger = loggerFactory.CreateLogger("TEST");
+
         }
 
 

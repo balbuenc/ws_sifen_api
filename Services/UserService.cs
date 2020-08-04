@@ -7,7 +7,7 @@ using GoldenGateAPI.Entities;
 using GoldenGateAPI.Data;
 using Microsoft.Extensions.Configuration;
 using System.Data;
-
+using Microsoft.Extensions.Logging;
 
 namespace GoldenGateAPI.Services
 {
@@ -18,30 +18,35 @@ namespace GoldenGateAPI.Services
     }
     public class UserService : IUserService
     {
+       
         private readonly IConfiguration _config;
-        private Database db = new Database();
-        private string sqlDataSource;
+
+
         private List<User> _users = new List<User>();
 
 
         public UserService(IConfiguration config)
         {
             _config = config;
-            sqlDataSource = config.GetConnectionString("DefaultConnection");
+          
+
+            PostgreSQL db = new PostgreSQL();
+
+            string postgresDataSource = config.GetConnectionString("PostgresConnectionString");
 
             //Set User identity data query
-            string query = "secure.sp_get_users";
-            DataTable dt = db.ExecuteSP(query, sqlDataSource);
-          
+            string query = "select Id, Username, Password, FirstName, LastName from secure.identity";
+            DataTable dt = db.GetData(query, postgresDataSource);
+
             _users = Tools.ConvertDataTable<User>(dt);
-           
+
         }
 
-      
+
 
         public async Task<User> Authenticate(string username, string password)
         {
-            var user = await Task.Run(() => _users.SingleOrDefault(x => x.Username == username && x.Password == password));
+            var user = await Task.Run(() => _users.SingleOrDefault(x => x.username == username && x.password == password));
 
             // return null if user not found
             if (user == null)

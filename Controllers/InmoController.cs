@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using GoldenGateAPI.Data;
+using GoldenGateAPI.Entities;
 using GoldenGateAPI.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ using Oracle.ManagedDataAccess.Client;
 namespace GoldenGateAPI.Controllers
 {
     [Authorize]
-    [Route("inmo/[controller]")]
+    [Route("api/cuotas")]
     [ApiController]
     public class InmoController : ControllerBase
     {
@@ -26,10 +27,10 @@ namespace GoldenGateAPI.Controllers
 
         //Database ORMs
         private Oraculo OracleDB;
-        private Database SqlServerDB;
+        private string oracleConnectionString;
 
-        private string sqlDataSource;
-        private string oracleDataSource;
+        private PostgreSQL PostgreDB;
+        private string postgresConnectionString;
 
         public InmoController(ILogger<InmoController> logger, IConfiguration config)
         {
@@ -37,8 +38,8 @@ namespace GoldenGateAPI.Controllers
             _config = config;
 
             //Get the Databases Connection Strings 
-            sqlDataSource = config.GetConnectionString("DefaultConnection");
-            oracleDataSource = config.GetConnectionString("OracleConnection");
+            postgresConnectionString = config.GetConnectionString("PostgresConnectionString");
+            oracleConnectionString = config.GetConnectionString("OracleConnectionString");
         }
 
         // GET: api/<InmoController>
@@ -52,42 +53,43 @@ namespace GoldenGateAPI.Controllers
         [HttpGet("{id}")]
         public ActionResult Get(string id)
         {
-           
-            DataTable sqlDT;
-            DataTable oracleDT;
+          
+            DataTable postgresDT;
 
-            SqlServerDB = new Database(_logger, _config);
-            OracleDB = new Oraculo(_logger, _config);
+            PostgreDB = new PostgreSQL();
+            OracleDB = new Oraculo();
 
 
             _logger.LogInformation("Llamado al metodo Get(id) [HttpGet]");
 
-            var parameters = new OracleParameter[]
-               {
-                    new OracleParameter("CodTransaccion", id)
-               };
+            //var parameters = new OracleParameter[]
+            //   {
+            //        new OracleParameter("CodTransaccion", id)
+            //   };
 
 
 
 
             //Execute ORACLE Request
-            oracleDT = OracleDB.GetConsultByTransactionCode(oracleDataSource, parameters);
-            var oracleResults = Tools.DataTableToJSON(oracleDT);
+            //oracleDT = OracleDB.GetConsultByTransactionCode(oracleConnectionString, parameters);
+            //var oracleResults = Tools.DataTableToJSON(oracleDT);
 
 
             //Execuete SQL Server Query
-            //sqlDT = SqlServerDB.GetData("[dbo].[sp_get_personas]", sqlDataSource);
-            //sqlResult = Tools.DataTableToJSON(sqlDT);
+            postgresDT = PostgreDB.GetData("select * from users", postgresConnectionString);
+            var sqlResult = Tools.DataTableToJSON(postgresDT);
 
 
 
-            return Ok(oracleResults);
+            return Ok(sqlResult);
         }
 
         // POST api/<InmoController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<User>> Post(User usuario)
         {
+            _logger.LogInformation("Llamado al metodo POST() :" + usuario.username);
+            return Ok("HTTP POST EXECUTED");
         }
 
         // PUT api/<InmoController>/5
