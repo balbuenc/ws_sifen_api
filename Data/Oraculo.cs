@@ -12,32 +12,24 @@ namespace GoldenGateAPI.Data
 {
     public class Oraculo
     {
-        private readonly ILogger _logger;
-        private OracleConnection conn;
+
+        public OracleConnection connection;
 
         public Oraculo()
         {
-            IServiceCollection serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-
-            var loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
-            _logger = loggerFactory.CreateLogger("TEST");
 
         }
 
 
         //DTO for execute generic query
-        public DataTable GetData(string str, string oracleDataSource)
+        public DataTable GetData(string query, OracleConnection conn)
         {
             DataTable objresutl = new DataTable();
 
             try
             {
-                conn = new OracleConnection(oracleDataSource);
-                conn.Open();
 
-
-                OracleCommand command = new OracleCommand(str, conn);
+                OracleCommand command = new OracleCommand(query, conn);
                 command.BindByName = true;
 
                 OracleDataReader reader = command.ExecuteReader();
@@ -45,28 +37,25 @@ namespace GoldenGateAPI.Data
                 objresutl.Load(reader);
 
                 reader.Close();
-                conn.Close();
-
-                _logger.LogInformation("[{0}][Oracle] GetData(..), Executed Correctly. ",DateTime.Now.ToString());
+             
             }
             catch (Exception ex)
             {
-                _logger.LogError("[{0}][Oracle] GetData(..), ERROR: {1}.", DateTime.Now.ToString(), ex.Message);
                 return null;
             }
+
             return objresutl;
         }
 
         //DTO for consulting Cuotas 
-        public DataTable GetConsultByTransactionCode(string oracleDataSource, params OracleParameter[] sqlParams)
+        public DataTable GetConsultByTransactionCode(OracleConnection conn, params OracleParameter[] sqlParams)
         {
             DataTable objresutl = new DataTable();
             string str = "SELECT* from(SELECT CODIGO_RETORNO AS codRetorno, DESC_RETORNO AS desRetorno, NOMBRE_CLIENTE AS nombreApellido, ID_FRACCION AS fraccion, ID_MANZANA AS manzana, ID_LOTE AS lote, NUMERO_CONTRATO AS nroContrato, NUMERO_CUOTA AS nroCuota, MONTO_CUOTA AS montoCuota, MONTO_MORA AS montoMora, MESES_MORA mesesMora, FECHA_VENCIMIENTO AS fechaVencimiento, CODIGO_TRANS AS CodTransaccion FROM prn_cuotas WHERE CODIGO_TRANS = :CodTransaccion ORDER BY FECHA_PROCESO DESC, NUMERO_CUOTA asc) where ROWNUM <= 3";
 
             try
             {
-                conn = new OracleConnection(oracleDataSource);
-                conn.Open();
+               
 
 
                 OracleCommand command = new OracleCommand(str, conn);
@@ -85,24 +74,20 @@ namespace GoldenGateAPI.Data
                 objresutl.Load(reader);
 
                 reader.Close();
-                conn.Close();
-
-                _logger.LogInformation("[{0}][Oracle] GetData(..), Executed Correctly. ", DateTime.Now.ToString());
+              
             }
             catch (Exception ex)
             {
-                _logger.LogError("[{0}][Oracle] GetData(..), ERROR: {1}.", DateTime.Now.ToString(), ex.Message);
                 return null;
             }
+
             return objresutl;
         }
 
 
         ~Oraculo()
         {
-
-            conn.Close();
-
+            connection.Close();
         }
 
     }

@@ -8,6 +8,7 @@ using GoldenGateAPI.Data;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace GoldenGateAPI.Services
 {
@@ -15,30 +16,49 @@ namespace GoldenGateAPI.Services
     {
         Task<User> Authenticate(string username, string password);
         Task<IEnumerable<User>> GetAll();
+
+
     }
     public class UserService : IUserService
     {
-       
+
         private readonly IConfiguration _config;
 
 
         private List<User> _users = new List<User>();
 
+        public readonly bool IsConnected = false;
 
         public UserService(IConfiguration config)
         {
             _config = config;
-          
 
-            PostgreSQL db = new PostgreSQL();
-
-            string postgresDataSource = config.GetConnectionString("PostgresConnectionString");
-
-            //Set User identity data query
+            string postgresConnectionString = config.GetConnectionString("PostgresConnectionString");
             string query = "select Id, Username, Password, FirstName, LastName from secure.identity";
-            DataTable dt = db.GetData(query, postgresDataSource);
 
-            _users = Tools.ConvertDataTable<User>(dt);
+            try
+            {
+
+
+                PostgreSQL identityDB = new PostgreSQL();
+
+                identityDB.connection = new NpgsqlConnection(postgresConnectionString);
+                identityDB.connection.Open();
+
+
+                //Set User identity data query
+
+                DataTable dt = identityDB.GetData(query, identityDB.connection);
+
+                _users = Tools.ConvertDataTable<User>(dt);
+
+                identityDB.connection.Close();
+
+            }
+            catch (Exception ex)
+            {
+                throw  new Exception("Cannot authenticate user petition: " + ex.Message );
+            }
 
         }
 
@@ -46,6 +66,9 @@ namespace GoldenGateAPI.Services
 
         public async Task<User> Authenticate(string username, string password)
         {
+            if (_users == null)
+                return null;
+
             var user = await Task.Run(() => _users.SingleOrDefault(x => x.username == username && x.password == password));
 
             // return null if user not found

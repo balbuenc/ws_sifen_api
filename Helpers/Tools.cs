@@ -12,6 +12,9 @@ namespace GoldenGateAPI.Helpers
     {
         public static string DataTableToJSON(DataTable table)
         {
+            if (table == null)
+                return null;
+
             string JSONString = string.Empty;
             JSONString = JsonConvert.SerializeObject(table);
             return JSONString;
@@ -20,6 +23,9 @@ namespace GoldenGateAPI.Helpers
         public static List<T> ConvertDataTable<T>(DataTable dt)
         {
             List<T> data = new List<T>();
+
+            if (dt == null)
+                return null;
 
             try
             {
@@ -41,6 +47,7 @@ namespace GoldenGateAPI.Helpers
         {
             Type temp = typeof(T);
             T obj = Activator.CreateInstance<T>();
+           
 
             foreach (DataColumn column in dr.Table.Columns)
             {

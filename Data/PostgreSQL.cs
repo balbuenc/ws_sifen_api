@@ -12,50 +12,38 @@ namespace GoldenGateAPI.Data
 {
     public class PostgreSQL
     {
-
-        private readonly ILogger _logger;
-        private NpgsqlConnection conn;
+ 
+        public NpgsqlConnection connection;
 
         public PostgreSQL()
         {
-         
-            IServiceCollection serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-
-            var loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
-            _logger = loggerFactory.CreateLogger("TEST");
-
         }
 
         //DTO for execute generic query
-        public DataTable GetData(string str, string postgresDataSource)
+        public DataTable GetData(string query, NpgsqlConnection conn)
         {
             DataTable objresutl = new DataTable();
 
             try
             {
-                conn = new NpgsqlConnection(postgresDataSource);
-                conn.Open();
-
-
-                NpgsqlCommand command = new NpgsqlCommand(str, conn);
-                
-
+                NpgsqlCommand command = new NpgsqlCommand(query, conn);
                 var reader = command.ExecuteReader();
 
                 objresutl.Load(reader);
 
                 reader.Close();
-                conn.Close();
-
-                _logger.LogInformation("[{0}][PostgreSQL] GetData(..), Executed Correctly. ", DateTime.Now.ToString());
+              
             }
             catch (Exception ex)
             {
-                _logger.LogError("[{0}][PostgreSQL] GetData(..), ERROR: {1}.", DateTime.Now.ToString(), ex.Message);
                 return null;
             }
             return objresutl;
+        }
+
+        ~PostgreSQL()
+        {
+            connection.Close();
         }
     }
 }

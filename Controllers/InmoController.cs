@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using GoldenGateAPI.Data;
 using GoldenGateAPI.Entities;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using Oracle.ManagedDataAccess.Client;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -20,6 +22,8 @@ namespace GoldenGateAPI.Controllers
     [Authorize]
     [Route("api/cuotas")]
     [ApiController]
+
+
     public class InmoController : ControllerBase
     {
         private readonly ILogger<InmoController> _logger;
@@ -29,7 +33,7 @@ namespace GoldenGateAPI.Controllers
         private Oraculo OracleDB;
         private string oracleConnectionString;
 
-        private PostgreSQL PostgreDB;
+        private PostgreSQL PostgresDB;
         private string postgresConnectionString;
 
         public InmoController(ILogger<InmoController> logger, IConfiguration config)
@@ -42,54 +46,68 @@ namespace GoldenGateAPI.Controllers
             oracleConnectionString = config.GetConnectionString("OracleConnectionString");
         }
 
-        // GET: api/<InmoController>
+        // GET: api/<cuotas>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public ActionResult<string> GetBody([FromBody] Payload value)
         {
-            return new string[] { "value1", "value2" };
+            return null;
         }
 
         // GET inmo/<InmoController>/5
         [HttpGet("{id}")]
         public ActionResult Get(string id)
         {
-          
-            DataTable postgresDT;
-
-            PostgreDB = new PostgreSQL();
-            OracleDB = new Oraculo();
-
-
-            _logger.LogInformation("Llamado al metodo Get(id) [HttpGet]");
-
-            //var parameters = new OracleParameter[]
-            //   {
-            //        new OracleParameter("CodTransaccion", id)
-            //   };
-
-
-
-
-            //Execute ORACLE Request
-            //oracleDT = OracleDB.GetConsultByTransactionCode(oracleConnectionString, parameters);
-            //var oracleResults = Tools.DataTableToJSON(oracleDT);
-
-
-            //Execuete SQL Server Query
-            postgresDT = PostgreDB.GetData("select * from users", postgresConnectionString);
-            var sqlResult = Tools.DataTableToJSON(postgresDT);
-
-
-
-            return Ok(sqlResult);
+            return null;
         }
 
         // POST api/<InmoController>
         [HttpPost]
-        public async Task<ActionResult<User>> Post(User usuario)
+        public  ActionResult<string> Post([FromBody] JsonElement pay)
         {
-            _logger.LogInformation("Llamado al metodo POST() :" + usuario.username);
-            return Ok("HTTP POST EXECUTED");
+            DataTable postgresDT;
+            DataTable oracleDT;
+
+
+            try
+            {
+
+                PostgresDB = new PostgreSQL();
+                OracleDB = new Oraculo();
+
+                OracleDB.connection = new OracleConnection(oracleConnectionString);
+                OracleDB.connection.Open();
+
+                PostgresDB.connection = new NpgsqlConnection(postgresConnectionString);
+                PostgresDB.connection.Open();
+
+
+                var p = JsonSerializer.Deserialize<Payload>(pay.GetRawText());
+
+                var parameters = new OracleParameter[]
+                   {
+                        new OracleParameter("CodTransaccion", p.codigoTransaccion)
+                   };
+
+
+                //Execute ORACLE Request
+                oracleDT = OracleDB.GetConsultByTransactionCode(OracleDB.connection, parameters);
+                var oracleResult = Tools.DataTableToJSON(oracleDT);
+
+
+                //Execuete SQL Server Query
+                postgresDT = PostgresDB.GetData("SELECT id, username, password, firstname, lastname FROM secure.identity;", PostgresDB.connection);
+                var postgresResult = Tools.DataTableToJSON(postgresDT);
+
+
+                _logger.LogInformation("[HttpPost] OK");
+
+                return Ok(oracleResult);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation("[HttpPost] ERROR. " + ex.Message);
+                return Conflict(ex.Message);
+            }
         }
 
         // PUT api/<InmoController>/5
