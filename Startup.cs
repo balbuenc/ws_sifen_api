@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GoldenGateAPI.Data;
 using GoldenGateAPI.Helpers;
+using GoldenGateAPI.Repositories;
 using GoldenGateAPI.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +30,9 @@ namespace GoldenGateAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+          
+
+
             services.AddCors();
             services.AddControllers();
 
@@ -36,8 +41,13 @@ namespace GoldenGateAPI
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
             // configure DI for application services
-            services.AddScoped<IUserService, UserService>();
             
+            //var sqlConnectionConfiguration = new SqlConfiguration(Configuration.GetConnectionString("ERPConnection"));
+            var sqlConnectionConfiguration = new SqlConfiguration(Configuration.GetConnectionString("WebConnectionString"));
+            services.AddSingleton(sqlConnectionConfiguration);
+
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IOraFracctionRepository, OraFracctionRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

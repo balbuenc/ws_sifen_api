@@ -20,7 +20,7 @@ using Oracle.ManagedDataAccess.Client;
 namespace GoldenGateAPI.Controllers
 {
     [Authorize]
-    [Route("api/cuotas")]
+    [Route("api/inmo")]
     [ApiController]
 
 

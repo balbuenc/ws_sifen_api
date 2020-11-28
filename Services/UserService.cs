@@ -34,7 +34,7 @@ namespace GoldenGateAPI.Services
             _config = config;
 
             string postgresConnectionString = config.GetConnectionString("PostgresConnectionString");
-            string query = "select Id, Username, Password, FirstName, LastName from secure.identity";
+            string query = @"SELECT id, username, passhash, firstname, lastname FROM secure.identity";
 
             try
             {
@@ -69,7 +69,7 @@ namespace GoldenGateAPI.Services
             if (_users == null)
                 return null;
 
-            var user = await Task.Run(() => _users.SingleOrDefault(x => x.username == username && x.password == password));
+            var user = await Task.Run(() => _users.SingleOrDefault(x => x.username == username && x.passhash == password));
 
             // return null if user not found
             if (user == null)
