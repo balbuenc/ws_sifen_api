@@ -53,6 +53,10 @@ namespace GoldenGateAPI.Controllers
             {
                 return Ok(await _OraFracctionRepository.GetAllLotesLibres(p));
             }
+            else if(p.departamento != "")
+            {
+                return Ok(await _OraFracctionRepository.GetAllFraccionesPorDeparatamento(p));
+            }
 
             return Ok();
                 
