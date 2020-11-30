@@ -48,7 +48,7 @@ namespace GoldenGateAPI.Repositories
             await db.QueryAsync<PW_Fracciones_Dpto>(proc, new { DEPARTAMENTO = payload.departamento });
 
             sql = @"SELECT ID_FRACCION, NOMBRE_FRACCION, ID_DEPARTAMENTO, NOMBRE_DEPARTAMENTO, ACTUALIZADO_AL
-                       FROM INMO.PW_FRACCIONES_POR_DPTO";
+                       FROM INMO.PW_FRACCIONES_POR_DPTO ORDER BY ID_FRACCION";
 
 
             return await db.QueryAsync<PW_Fracciones_Dpto>(sql, new { });
