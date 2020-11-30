@@ -61,6 +61,10 @@ namespace GoldenGateAPI.Controllers
             {
                 return Ok(await _OraFracctionRepository.GetAllFraccionesPorCiudad(p));
             }
+            else if (p.nombre != "")
+            {
+                return Ok(await _OraFracctionRepository.GetAllFraccionesPorNombre(p));
+            }
 
             return NotFound();
                 
