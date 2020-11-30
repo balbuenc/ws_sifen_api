@@ -44,7 +44,7 @@ namespace GoldenGateAPI.Repositories
             string sql = "";
             var db = dbConnection();
 
-            proc = @"CALL CONSULTAS_PAGINA_WEB.PF_FRACCIONES_POR_DPTO(:DEPARTAMENTO)";
+            proc = @"CALL CONSULTAS_PAGINA_WEB.PF_FRACCIONES_POR_DPTO(UPPER(:DEPARTAMENTO))";
             await db.QueryAsync<PW_Fracciones_Dpto>(proc, new { DEPARTAMENTO = payload.departamento });
 
             sql = @"SELECT ID_FRACCION, NOMBRE_FRACCION, ID_DEPARTAMENTO, NOMBRE_DEPARTAMENTO, ACTUALIZADO_AL
