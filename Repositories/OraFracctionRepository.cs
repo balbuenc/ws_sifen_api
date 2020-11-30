@@ -54,6 +54,22 @@ namespace GoldenGateAPI.Repositories
             return await db.QueryAsync<PW_Fracciones_Dpto>(sql, new { });
         }
 
+        public async Task<IEnumerable<PW_Fracciones_Ciudad>> GetAllFraccionesPorCiudad(FractionPayload payload)
+        {
+            string proc = "";
+            string sql = "";
+            var db = dbConnection();
+
+            proc = @"CALL CONSULTAS_PAGINA_WEB.PF_FRACCIONES_POR_CIUDAD(:CIUDAD)";
+            await db.QueryAsync<PW_Fracciones_Ciudad>(proc, new { CIUDAD = payload.ciudad });
+
+            sql = @"SELECT ID_FRACCION, NOMBRE_FRACCION, ID_CIUDAD, NOMBRE_CIUDAD, ACTUALIZADO_AL
+                    FROM INMO.PW_FRACCIONES_POR_CIUDAD ORDER BY ID_FRACCION";
+
+
+            return await db.QueryAsync<PW_Fracciones_Ciudad>(sql, new { });
+        }
+
         public async Task<Inmo_Fraccion> GetFractionDetails(int id)
         {
             var db = dbConnection();

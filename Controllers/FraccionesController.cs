@@ -48,17 +48,21 @@ namespace GoldenGateAPI.Controllers
         {
             var p = JsonSerializer.Deserialize<FractionPayload>(pay.GetRawText());
 
-            _logger.LogInformation("[HttpPost] OK");
-            if (p.lotes_libres > 0 )
+            _logger.LogInformation("[HttpGet] GetFractions()");
+            if (p.lotes_libres > 0)
             {
                 return Ok(await _OraFracctionRepository.GetAllLotesLibres(p));
             }
-            else if(p.departamento != "")
+            else if (p.departamento != "" )
             {
                 return Ok(await _OraFracctionRepository.GetAllFraccionesPorDeparatamento(p));
             }
+            else if (p.ciudad != "" )
+            {
+                return Ok(await _OraFracctionRepository.GetAllFraccionesPorCiudad(p));
+            }
 
-            return Ok();
+            return NotFound();
                 
 
         }
