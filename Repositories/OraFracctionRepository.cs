@@ -86,14 +86,14 @@ namespace GoldenGateAPI.Repositories
             return await db.QueryAsync<PW_Fracciones_Nombre>(sql, new { });
         }
 
-        public async Task<Inmo_Fraccion> GetFractionDetails(int id)
+        public async Task<IEnumerable<Inmo_Fraccion>> GetAllFracciones()
         {
             var db = dbConnection();
-            var sql = @"SELECT ID_FRACCION, NOMBRE_FRACCION, ID_CIUDAD, ID_DEPARTAMENTO, ACTUALIZADO_AL
-                        FROM INMO.PW_BUSCAR_FRACCIONES";
+            var sql = @"SELECT ID_FRACCION,DESCRIPCION as NOMBRE_FRACCION, CANT_MANZANA,  DIMENSION, ESTADO, FECHA_BAJA, FECHA_INGRESO, ID_CIUDAD,  NRO_FINCA, OBSERVACION, TIPO_FRACCION,  ID_DEPARTAMENTO
+                        FROM INMO.FRACCIONES";
 
 
-            return await db.QueryFirstOrDefaultAsync<Inmo_Fraccion>(sql, new { Id = id });
+            return await db.QueryAsync<Inmo_Fraccion>(sql, new {  });
         }
     }
 }

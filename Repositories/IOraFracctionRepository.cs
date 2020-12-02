@@ -16,6 +16,6 @@ namespace GoldenGateAPI.Repositories
 
         Task<IEnumerable<PW_Fracciones_Nombre>> GetAllFraccionesPorNombre(FractionPayload payload);
 
-        Task<Inmo_Fraccion> GetFractionDetails(int id);
+        Task<IEnumerable<Inmo_Fraccion>> GetAllFracciones();
     }
 }

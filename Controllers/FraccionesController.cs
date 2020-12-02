@@ -19,7 +19,7 @@ using Oracle.ManagedDataAccess.Client;
 namespace GoldenGateAPI.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    //[Route("api/[controller]")]
     [ApiController]
     public class FraccionesController : ControllerBase
     {
@@ -41,14 +41,21 @@ namespace GoldenGateAPI.Controllers
         }
 
 
+        [HttpGet("api/ObtenerFracciones")]
+        public async Task<IActionResult> GetAllFractions()
+        {
+            _logger.LogInformation("[HttpGet] GetFractions()");
+
+            return Ok(await _OraFracctionRepository.GetAllFracciones());
+        }
 
 
-        [HttpGet]
+        [HttpGet("api/fracciones")]
         public async Task<IActionResult> GetFractions([FromBody] JsonElement pay)
         {
             var p = JsonSerializer.Deserialize<FractionPayload>(pay.GetRawText());
 
-            _logger.LogInformation("[HttpGet] GetFractions()");
+            _logger.LogInformation("[HttpGet] GetFractions([FromBody] JsonElement pay)");
             if (p.lotes_libres > 0)
             {
                 return Ok(await _OraFracctionRepository.GetAllLotesLibres(p));
