@@ -36,15 +36,15 @@ namespace GoldenGateAPI.Controllers
             _logger = logger;
             _config = config;
             _OraFracctionRepository = fractionRepository;
-
-            _logger.LogInformation("Entrando al constructor");
         }
 
 
         [HttpGet("api/ObtenerFracciones")]
         public async Task<IActionResult> GetAllFractions()
         {
+            
             _logger.LogInformation("[HttpGet] GetFractions()");
+            _logger.LogInformation("[Datetime] " + DateTime.Now.ToString());
 
             return Ok(await _OraFracctionRepository.GetAllFracciones());
         }
@@ -52,7 +52,9 @@ namespace GoldenGateAPI.Controllers
         [HttpGet("api/ObtenerCiudades")]
         public async Task<IActionResult> GetAllCities()
         {
+            
             _logger.LogInformation("[HttpGet] GetAllCities()");
+            _logger.LogInformation("[Datetime] " + DateTime.Now.ToString());
 
             return Ok(await _OraFracctionRepository.GetAllCiudades());
         }
@@ -62,7 +64,10 @@ namespace GoldenGateAPI.Controllers
         {
             var p = JsonSerializer.Deserialize<FractionPayload>(pay.GetRawText());
 
+            
             _logger.LogInformation("[HttpGet] GetFractions([FromBody] JsonElement pay)");
+            _logger.LogInformation("[Datetime] " + DateTime.Now.ToString());
+
             if (p.lotes_libres > 0)
             {
                 return Ok(await _OraFracctionRepository.GetAllLotesLibres(p));
