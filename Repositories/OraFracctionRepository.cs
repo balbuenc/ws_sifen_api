@@ -95,5 +95,15 @@ namespace GoldenGateAPI.Repositories
 
             return await db.QueryAsync<Inmo_Fraccion>(sql, new {  });
         }
+
+        public async Task<IEnumerable<Inmo_Ciudad>> GetAllCiudades()
+        {
+            var db = dbConnection();
+            var sql = @"SELECT ID_CIUDAD, DESCRIPCION AS CIUDAD
+                        FROM INMO.CIUDADES order BY 2";
+
+
+            return await db.QueryAsync<Inmo_Ciudad>(sql, new { });
+        }
     }
 }
