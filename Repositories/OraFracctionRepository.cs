@@ -105,5 +105,16 @@ namespace GoldenGateAPI.Repositories
 
             return await db.QueryAsync<Inmo_Ciudad>(sql, new { });
         }
+        public async Task<IEnumerable<Inmo_Cliente>> GetAllClientes()
+        {
+            var db = dbConnection();
+            var sql = @"SELECT ID_PERSONA, DIRECCION_EMAIL, DIRECCION_PARTICULAR, DOCUMENTO, ESTADO, ESTADO_CIVIL, FECHA_BAJA, FECHA_INGRESO, FECHA_NACIMIENTO, NACIONALIDAD, NOMBRE_COMPLETO, OBSERVACION, PRIMER_APELLIDO, PRIMER_NOMBRE, RUC, SEGUNDO_APELLIDO, SEGUNDO_NOMBRE, SEXO, TELEFONO_OFICINA, TELEFONO_PARTICULAR, TIPO_DOCUMENTO,  REFERENCIA_DIRECCION, BARRIO, INFORMCONF
+                        FROM INMO.PERSONAS
+                        WHERE PERSONA_CLIENTE = 'S'";
+
+
+            return await db.QueryAsync<Inmo_Cliente>(sql, new { });
+        }
+
     }
 }

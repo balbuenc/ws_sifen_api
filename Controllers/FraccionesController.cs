@@ -59,6 +59,16 @@ namespace GoldenGateAPI.Controllers
             return Ok(await _OraFracctionRepository.GetAllCiudades());
         }
 
+        [HttpGet("api/ObtenerClientes")]
+        public async Task<IActionResult> GetAllClients()
+        {
+
+            _logger.LogInformation("[HttpGet] GetAllClients()");
+            _logger.LogInformation("[Datetime] " + DateTime.Now.ToString());
+
+            return Ok(await _OraFracctionRepository.GetAllClientes());
+        }
+
         [HttpGet("api/fracciones")]
         public async Task<IActionResult> GetFractions([FromBody] JsonElement pay)
         {

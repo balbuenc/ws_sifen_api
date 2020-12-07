@@ -18,5 +18,7 @@ namespace GoldenGateAPI.Repositories
 
         Task<IEnumerable<Inmo_Fraccion>> GetAllFracciones();
         Task<IEnumerable<Inmo_Ciudad>> GetAllCiudades();
+
+        Task<IEnumerable<Inmo_Cliente>> GetAllClientes();
     }
 }
