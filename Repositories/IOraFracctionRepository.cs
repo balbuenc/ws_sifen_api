@@ -16,9 +16,22 @@ namespace GoldenGateAPI.Repositories
 
         Task<IEnumerable<PW_Fracciones_Nombre>> GetAllFraccionesPorNombre(FractionPayload payload);
 
-        Task<IEnumerable<Inmo_Fraccion>> GetAllFracciones();
-        Task<IEnumerable<Inmo_Ciudad>> GetAllCiudades();
+        Task<IEnumerable<Inmo_Fraccion>> GetFractions();
+        Task<Inmo_Fraccion> GetFracctionByID(int id);
 
-        Task<IEnumerable<Inmo_Cliente>> GetAllClientes();
+        Task<IEnumerable<Inmo_Ciudad>> GetCities();
+        Task<Inmo_Ciudad> GetCityByID(int id);
+
+        Task<IEnumerable<Inmo_Cliente>> GetClients();
+        Task<Inmo_Cliente> GetClientByID(int id);
+
+        Task<IEnumerable<Inmo_Lote>> GetLotes();
+        Task<Inmo_Lote> GetLoteByID(int id);
+
+        Task<IEnumerable<Inmo_Lote>> GetLotesByFracctionID(int id);
+
+        Task<IEnumerable<Inmo_Lote>> GetLotesByClientID(int id);
+
+        Task<IEnumerable<Inmo_Pago>> GetPagos();
     }
 }

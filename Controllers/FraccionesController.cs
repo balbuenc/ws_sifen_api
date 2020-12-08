@@ -27,8 +27,8 @@ namespace GoldenGateAPI.Controllers
         private readonly IConfiguration _config;
 
         //Database ORMs
-     
-     
+
+
         private readonly IOraFracctionRepository _OraFracctionRepository;
 
         public FraccionesController(IOraFracctionRepository fractionRepository, ILogger<FraccionesController> logger, IConfiguration config)
@@ -39,54 +39,124 @@ namespace GoldenGateAPI.Controllers
         }
 
 
-        [HttpGet("api/ObtenerFracciones")]
+        [HttpGet("api/fracciones")]
         public async Task<IActionResult> GetAllFractions()
         {
-            
-            _logger.LogInformation("[HttpGet] GetFractions()");
-            _logger.LogInformation("[Datetime] " + DateTime.Now.ToString());
 
-            return Ok(await _OraFracctionRepository.GetAllFracciones());
+            _logger.LogInformation("[{1}][HttpGet] GetAllFractions()", DateTime.Now.ToString());
+           
+
+            return Ok(await _OraFracctionRepository.GetFractions());
         }
 
-        [HttpGet("api/ObtenerCiudades")]
+        [HttpGet("api/fracciones/{id}")]
+        public async Task<IActionResult> GetFractionByID(int id)
+        {
+            _logger.LogInformation("[{1}][HttpGet] GetFractionByID()", DateTime.Now.ToString());
+            return Ok(await _OraFracctionRepository.GetFracctionByID(id));
+        }
+
+        [HttpGet("api/fracciones/{id}/lotes")]
+        public async Task<IActionResult> GetLotesByFractionID(int id)
+        {
+            _logger.LogInformation("[{1}][HttpGet] GetLotesByFractionID()", DateTime.Now.ToString());
+            return Ok(await _OraFracctionRepository.GetLotesByFracctionID(id));
+        }
+
+        [HttpGet("api/ciudades")]
         public async Task<IActionResult> GetAllCities()
         {
-            
-            _logger.LogInformation("[HttpGet] GetAllCities()");
-            _logger.LogInformation("[Datetime] " + DateTime.Now.ToString());
 
-            return Ok(await _OraFracctionRepository.GetAllCiudades());
+            _logger.LogInformation("[{1}][HttpGet] GetAllCities()", DateTime.Now.ToString());
+           
+            return Ok(await _OraFracctionRepository.GetCities());
         }
 
-        [HttpGet("api/ObtenerClientes")]
+        [HttpGet("api/ciudades/{id}")]
+        public async Task<IActionResult> GetCityByID(int id)
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] GetCityByID()", DateTime.Now.ToString());
+
+            return Ok(await _OraFracctionRepository.GetCityByID(id));
+        }
+
+
+
+        [HttpGet("api/clientes")]
         public async Task<IActionResult> GetAllClients()
         {
 
-            _logger.LogInformation("[HttpGet] GetAllClients()");
-            _logger.LogInformation("[Datetime] " + DateTime.Now.ToString());
-
-            return Ok(await _OraFracctionRepository.GetAllClientes());
+            _logger.LogInformation("[{1}][HttpGet] GetAllClients()", DateTime.Now.ToString());
+            
+            return Ok(await _OraFracctionRepository.GetClients());
         }
 
-        [HttpGet("api/fracciones")]
+        [HttpGet("api/clientes/{id}")]
+        public async Task<IActionResult> GetClientByID(int id)
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] GetClientByID()", DateTime.Now.ToString());
+
+            return Ok(await _OraFracctionRepository.GetClientByID(id));
+        }
+
+        [HttpGet("api/clientes/{id}/lotes")]
+        public async Task<IActionResult> GetLotesByClientID(int id)
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] GetLotesByClientID()", DateTime.Now.ToString());
+
+            return Ok(await _OraFracctionRepository.GetLotesByClientID(id));
+        }
+
+        [HttpGet("api/lotes")]
+        public async Task<IActionResult> GetAllLotes()
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] GetAllLotes()", DateTime.Now.ToString());
+
+            return Ok(await _OraFracctionRepository.GetLotes());
+        }
+
+        [HttpGet("api/lotes/{id}")]
+        public async Task<IActionResult> GetLoteByID(int id)
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] GetLoteByID()", DateTime.Now.ToString());
+
+            return Ok(await _OraFracctionRepository.GetLoteByID(id));
+        }
+
+        [HttpGet("api/pagos")]
+        public async Task<IActionResult> GetPagos()
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] GetPagos()", DateTime.Now.ToString());
+
+            return Ok(await _OraFracctionRepository.GetPagos());
+        }
+
+
+
+        [HttpGet("api/BuscarFracciones")]
         public async Task<IActionResult> GetFractions([FromBody] JsonElement pay)
         {
             var p = JsonSerializer.Deserialize<FractionPayload>(pay.GetRawText());
 
+
+            _logger.LogInformation("[{1}][HttpGet] GetFractions([FromBody] JsonElement pay)", DateTime.Now.ToString());
             
-            _logger.LogInformation("[HttpGet] GetFractions([FromBody] JsonElement pay)");
-            _logger.LogInformation("[Datetime] " + DateTime.Now.ToString());
 
             if (p.lotes_libres > 0)
             {
                 return Ok(await _OraFracctionRepository.GetAllLotesLibres(p));
             }
-            else if (p.departamento != "" )
+            else if (p.departamento != "")
             {
                 return Ok(await _OraFracctionRepository.GetAllFraccionesPorDeparatamento(p));
             }
-            else if (p.ciudad != "" )
+            else if (p.ciudad != "")
             {
                 return Ok(await _OraFracctionRepository.GetAllFraccionesPorCiudad(p));
             }
@@ -96,7 +166,7 @@ namespace GoldenGateAPI.Controllers
             }
 
             return NotFound();
-                
+
 
         }
     }
