@@ -22,14 +22,14 @@ namespace GoldenGateAPI.Repositories
         {
             return new OracleConnection(_connectionString.ConnectionString);
         }
-        public async Task<IEnumerable<PW_Lotes_Libres>> GetAllLotesLibres(FractionPayload payload)
+        public async Task<IEnumerable<PW_Lotes_Libres>> GetAllLotesLibres(int lotes_libres)
         {
             string proc = "";
             string sql = "";
             var db = dbConnection();
 
             proc = @"CALL CONSULTAS_PAGINA_WEB.PF_LOTES_LIBRES_POR_FRACCION(:CANTIDAD)";
-            await db.QueryAsync<PW_Lotes_Libres>(proc, new { CANTIDAD = payload.lotes_libres });
+            await db.QueryAsync<PW_Lotes_Libres>(proc, new { CANTIDAD = lotes_libres });
 
             sql = @"SELECT ID_FRACCION, NOMBRE, BARRIO, CIUDAD, DEPARTAMENTO, CANT_LOTES, DISPONIBLES, FECHA_APERTURA, ID_PROPIETARIO, NOMBRES, APELLIDOS, TELEFONO, EMAIL, ACTUALIZADO_AL
                     FROM INMO.PW_LOTES_LIBRES";
@@ -38,14 +38,14 @@ namespace GoldenGateAPI.Repositories
             return await db.QueryAsync<PW_Lotes_Libres>(sql, new { });
         }
 
-        public async Task<IEnumerable<PW_Fracciones_Dpto>> GetAllFraccionesPorDeparatamento(FractionPayload payload)
+        public async Task<IEnumerable<PW_Fracciones_Dpto>> GetAllFraccionesPorDeparatamento(string departamento)
         {
             string proc = "";
             string sql = "";
             var db = dbConnection();
 
             proc = @"CALL CONSULTAS_PAGINA_WEB.PF_FRACCIONES_POR_DPTO(UPPER(:DEPARTAMENTO))";
-            await db.QueryAsync<PW_Fracciones_Dpto>(proc, new { DEPARTAMENTO = payload.departamento });
+            await db.QueryAsync<PW_Fracciones_Dpto>(proc, new { DEPARTAMENTO = departamento });
 
             sql = @"SELECT ID_FRACCION, NOMBRE_FRACCION, ID_DEPARTAMENTO, NOMBRE_DEPARTAMENTO, ACTUALIZADO_AL
                        FROM INMO.PW_FRACCIONES_POR_DPTO ORDER BY ID_FRACCION";
@@ -54,14 +54,14 @@ namespace GoldenGateAPI.Repositories
             return await db.QueryAsync<PW_Fracciones_Dpto>(sql, new { });
         }
 
-        public async Task<IEnumerable<PW_Fracciones_Ciudad>> GetAllFraccionesPorCiudad(FractionPayload payload)
+        public async Task<IEnumerable<PW_Fracciones_Ciudad>> GetAllFraccionesPorCiudad(string ciudad)
         {
             string proc = "";
             string sql = "";
             var db = dbConnection();
 
             proc = @"CALL CONSULTAS_PAGINA_WEB.PF_FRACCIONES_POR_CIUDAD(:CIUDAD)";
-            await db.QueryAsync<PW_Fracciones_Ciudad>(proc, new { CIUDAD = payload.ciudad });
+            await db.QueryAsync<PW_Fracciones_Ciudad>(proc, new { CIUDAD = ciudad });
 
             sql = @"SELECT ID_FRACCION, NOMBRE_FRACCION, ID_CIUDAD, NOMBRE_CIUDAD, ACTUALIZADO_AL
                     FROM INMO.PW_FRACCIONES_POR_CIUDAD ORDER BY ID_FRACCION";
@@ -70,14 +70,14 @@ namespace GoldenGateAPI.Repositories
             return await db.QueryAsync<PW_Fracciones_Ciudad>(sql, new { });
         }
 
-        public async Task<IEnumerable<PW_Fracciones_Nombre>> GetAllFraccionesPorNombre(FractionPayload payload)
+        public async Task<IEnumerable<PW_Fracciones_Nombre>> GetAllFraccionesPorNombre(string nombre)
         {
             string proc = "";
             string sql = "";
             var db = dbConnection();
 
             proc = @"CALL CONSULTAS_PAGINA_WEB.PF_FRACCIONES_POR_NOMBRE(:NOMBRE)";
-            await db.QueryAsync<PW_Fracciones_Nombre>(proc, new { NOMBRE = payload.nombre });
+            await db.QueryAsync<PW_Fracciones_Nombre>(proc, new { NOMBRE = nombre });
 
             sql = @"SELECT ID_FRACCION, NOMBRE_FRACCION, ID_CIUDAD, ID_DEPARTAMENTO, ACTUALIZADO_AL, NOMBRE_CIUDAD, NOMBRE_DEPARTAMENTO
                     FROM INMO.PW_FRACCIONES_POR_NOMBRE";

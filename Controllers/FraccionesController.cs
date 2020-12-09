@@ -138,36 +138,34 @@ namespace GoldenGateAPI.Controllers
         }
 
 
-
-        [HttpGet("api/BuscarFracciones")]
-        public async Task<IActionResult> GetFractions([FromBody] JsonElement pay)
+        [HttpGet("/api/fracciones/buscar")]
+        public async Task<IActionResult> GetFractions([FromQuery] int lotes_libres, [FromQuery]  string departamento, [FromQuery] string ciudad, [FromQuery] string nombre)
         {
-            var p = JsonSerializer.Deserialize<FractionPayload>(pay.GetRawText());
+            _logger.LogInformation("[{1}][HttpGet] GetFractions([FromQuery] int lotes_libres)", DateTime.Now.ToString());
 
 
-            _logger.LogInformation("[{1}][HttpGet] GetFractions([FromBody] JsonElement pay)", DateTime.Now.ToString());
-            
-
-            if (p.lotes_libres > 0)
+            if (lotes_libres > 0)
             {
-                return Ok(await _OraFracctionRepository.GetAllLotesLibres(p));
+                return Ok(await _OraFracctionRepository.GetAllLotesLibres(lotes_libres));
             }
-            else if (p.departamento != "")
+            else if(departamento != "" && departamento != null)
             {
-                return Ok(await _OraFracctionRepository.GetAllFraccionesPorDeparatamento(p));
+                return Ok(await _OraFracctionRepository.GetAllFraccionesPorDeparatamento(departamento));
             }
-            else if (p.ciudad != "")
+            else if (ciudad != "" && ciudad != null)
             {
-                return Ok(await _OraFracctionRepository.GetAllFraccionesPorCiudad(p));
+                return Ok(await _OraFracctionRepository.GetAllFraccionesPorCiudad(ciudad));
             }
-            else if (p.nombre != "")
+            else if (nombre != "" && nombre != null)
             {
-                return Ok(await _OraFracctionRepository.GetAllFraccionesPorNombre(p));
+                return Ok(await _OraFracctionRepository.GetAllFraccionesPorNombre(nombre));
             }
-
-            return NotFound();
-
-
+            else
+            {
+                return NotFound();
+            }
         }
+
+      
     }
 }

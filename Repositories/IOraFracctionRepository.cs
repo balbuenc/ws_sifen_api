@@ -8,13 +8,13 @@ namespace GoldenGateAPI.Repositories
 {
     public interface IOraFracctionRepository
     {
-        Task<IEnumerable<PW_Lotes_Libres>> GetAllLotesLibres(FractionPayload payload);
+        Task<IEnumerable<PW_Lotes_Libres>> GetAllLotesLibres(int lotes_libres);
 
-        Task<IEnumerable<PW_Fracciones_Dpto>> GetAllFraccionesPorDeparatamento(FractionPayload payload);
+        Task<IEnumerable<PW_Fracciones_Dpto>> GetAllFraccionesPorDeparatamento(string departamento);
 
-        Task<IEnumerable<PW_Fracciones_Ciudad>> GetAllFraccionesPorCiudad(FractionPayload payload);
+        Task<IEnumerable<PW_Fracciones_Ciudad>> GetAllFraccionesPorCiudad(string ciudad);
 
-        Task<IEnumerable<PW_Fracciones_Nombre>> GetAllFraccionesPorNombre(FractionPayload payload);
+        Task<IEnumerable<PW_Fracciones_Nombre>> GetAllFraccionesPorNombre(string nombre);
 
         Task<IEnumerable<Inmo_Fraccion>> GetFractions();
         Task<Inmo_Fraccion> GetFracctionByID(int id);
