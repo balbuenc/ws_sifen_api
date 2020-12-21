@@ -8,7 +8,7 @@ namespace GoldenGateAPI.Repositories
 {
     public interface IOraFracctionRepository
     {
-        Task<string> Pago(string contrato, decimal cobrado_cuota, decimal cobrado_mora, string codigo_trans);
+        Task<IEnumerable<WEB_PAGOS>> Pago(string contrato, decimal cobrado_cuota, decimal cobrado_mora, string codigo_trans);
         Task<IEnumerable<WEB_CUOTAS>> GetWebCuotasByCI(Int32 CEDULA);
 
         Task<IEnumerable<PW_Lotes_Libres>> GetAllLotesLibres(int lotes_libres);

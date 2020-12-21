@@ -4,8 +4,10 @@ using GoldenGateAPI.Entities;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper.Oracle;
 
 namespace GoldenGateAPI.Repositories
 {
@@ -23,35 +25,47 @@ namespace GoldenGateAPI.Repositories
             return new OracleConnection(_connectionString.ConnectionString);
         }
 
-        public async Task<string> Pago(string contrato, decimal cobrado_cuota, decimal cobrado_mora, string codigo_trans)
+        public async Task<IEnumerable<WEB_PAGOS>> Pago(string contrato, decimal cobrado_cuota, decimal cobrado_mora, string codigo_trans)
         {
             string proc = "";
-            string respuesta = "";
-
-
-
+            string sql = "";
 
 
             var db = dbConnection();
 
 
 
+            OracleDynamicParameters _params = new OracleDynamicParameters();
+
+            _params.Add(name: "p_contrato", value: contrato, direction: ParameterDirection.Input, dbType: OracleMappingType.Varchar2);
+            _params.Add(name: "p_cobrado_cuota", value: cobrado_cuota, direction: ParameterDirection.Input, dbType: OracleMappingType.Decimal);
+            _params.Add(name: "p_cobrado_mora", value: cobrado_mora, direction: ParameterDirection.Input, dbType: OracleMappingType.Decimal);
+            _params.Add(name: "p_codigo_trans", value: codigo_trans, direction: ParameterDirection.Input, dbType: OracleMappingType.Varchar2);
+            //_params.Add(name: "p_respuesta", direction: ParameterDirection.Output, dbType: OracleMappingType.RefCursor);
+
+            //proc = @"CALL web_cobranza.pf_pago( p_contrato => :p_contrato,
+            //                                         p_cobrado_cuota => :p_cobrado_cuota,
+            //                                         p_cobrado_mora => :p_cobrado_mora,
+            //                                         p_codigo_trans => :p_codigo_trans,
+            //                                         p_respuesta => :p_respuesta )";
+
             proc = @"CALL web_cobranza.pf_pago( p_contrato => :p_contrato,
                                                  p_cobrado_cuota => :p_cobrado_cuota,
                                                  p_cobrado_mora => :p_cobrado_mora,
-                                                 p_codigo_trans => :p_codigo_trans,
-                                                 p_respuesta => :p_respuesta)";
+                                                 p_codigo_trans => :p_codigo_trans)";
 
-            await db.QueryAsync<WEB_CUOTAS>(proc, new
-            {
-                p_contrato = contrato,
-                p_cobrado_cuota = cobrado_cuota,
-                p_cobrado_mora = cobrado_mora,
-                p_codigo_trans = codigo_trans,
-                p_respuesta = respuesta
-            });
+            //Ejecuto el pago
+            await db.QueryAsync<string>(proc, _params);
 
-            return respuesta;
+
+            //Consulto el pago realizado
+            sql = @"SELECT NUMERO_CONTRATO, ID_FRACCION, ID_MANZANA, ID_LOTE, ESTADO, FECHA_PROCESO, MONTO_COBRADO_CUOTA, MONTO_COBRADO_MORA, CODIGO_RETORNO, DESC_RETORNO, CODIGO_TRANS, PAGO_GENERADO, FECHA_GENERADO, COMPROBANTE, CUOTA_COBRADA, IVA_CUOTA, MORA_COBRADA, IVA_MORA
+                    FROM INMO.WEB_PAGOS
+                    WHERE CODIGO_TRANS =:CODIGO_TRANS";
+
+
+            return await db.QueryAsync<WEB_PAGOS>(sql, new { CODIGO_TRANS = codigo_trans });
+
 
         }
 
