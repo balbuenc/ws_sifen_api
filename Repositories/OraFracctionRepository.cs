@@ -22,6 +22,75 @@ namespace GoldenGateAPI.Repositories
         {
             return new OracleConnection(_connectionString.ConnectionString);
         }
+
+        public async Task<string> Pago(string contrato, decimal cobrado_cuota, decimal cobrado_mora, string codigo_trans)
+        {
+            string proc = "";
+            string respuesta = "";
+
+
+
+
+
+            var db = dbConnection();
+
+
+
+            proc = @"CALL web_cobranza.pf_pago( p_contrato => :p_contrato,
+                                                 p_cobrado_cuota => :p_cobrado_cuota,
+                                                 p_cobrado_mora => :p_cobrado_mora,
+                                                 p_codigo_trans => :p_codigo_trans,
+                                                 p_respuesta => :p_respuesta)";
+
+            await db.QueryAsync<WEB_CUOTAS>(proc, new
+            {
+                p_contrato = contrato,
+                p_cobrado_cuota = cobrado_cuota,
+                p_cobrado_mora = cobrado_mora,
+                p_codigo_trans = codigo_trans,
+                p_respuesta = respuesta
+            });
+
+            return respuesta;
+
+        }
+
+        public async Task<IEnumerable<WEB_CUOTAS>> GetWebCuotasByCI(Int32 CEDULA)
+        {
+            string proc = "";
+            string sql_codigo_trans = "";
+            string sql = "";
+
+            IEnumerable<WEB_CUOTAS> web_cuotas;
+            Int32 ultimo_codigo_trans = 0;
+
+            var db = dbConnection();
+
+            sql_codigo_trans = @"SELECT * FROM (
+                                SELECT  NUMERO_CONTRATO, NOMBRE_CLIENTE, ID_FRACCION, ID_MANZANA, ID_LOTE, NUMERO_CUOTA, MONTO_CUOTA, MESES_MORA, MONTO_MORA, CODIGO_RETORNO, DESC_RETORNO, CODIGO_TRANS, DOCUMENTO, FECHA_VENCIMIENTO, DESCRIPCION_FRACCION, FECHA_PROCESO
+                                FROM INMO.WEB_CUOTAS
+                                ORDER BY CAST (CODIGO_TRANS AS int)  desc 
+                                )
+                                WHERE ROWNUM <= 1";
+
+
+            web_cuotas = await db.QueryAsync<WEB_CUOTAS>(sql_codigo_trans, new { });
+
+            ultimo_codigo_trans = web_cuotas.First<WEB_CUOTAS>().CODIGO_TRANS + 1;
+
+            proc = @"CALL web_consulta.pf_consulta(wcedula => :wcedula, wcodigo_trans => :wcodigo_trans)";
+
+            await db.QueryAsync<WEB_CUOTAS>(proc, new { wcedula = CEDULA, wcodigo_trans = ultimo_codigo_trans });
+
+            sql = @"SELECT NUMERO_CONTRATO, NOMBRE_CLIENTE, ID_FRACCION, ID_MANZANA, ID_LOTE, NUMERO_CUOTA, MONTO_CUOTA, MESES_MORA, MONTO_MORA, CODIGO_RETORNO, DESC_RETORNO, CODIGO_TRANS, DOCUMENTO, FECHA_VENCIMIENTO, DESCRIPCION_FRACCION, FECHA_PROCESO
+                    FROM INMO.WEB_CUOTAS
+                    WHERE CODIGO_TRANS = :CODIGO_TRANS";
+
+
+            return await db.QueryAsync<WEB_CUOTAS>(sql, new { CODIGO_TRANS = ultimo_codigo_trans });
+        }
+
+
         public async Task<IEnumerable<PW_Lotes_Libres>> GetAllLotesLibres(int lotes_libres)
         {
             string proc = "";
@@ -93,7 +162,7 @@ namespace GoldenGateAPI.Repositories
                         FROM INMO.FRACCIONES";
 
 
-            return await db.QueryAsync<Inmo_Fraccion>(sql, new {  });
+            return await db.QueryAsync<Inmo_Fraccion>(sql, new { });
         }
 
         public async Task<Inmo_Fraccion> GetFracctionByID(int id)
@@ -150,7 +219,7 @@ namespace GoldenGateAPI.Repositories
             return await db.QueryFirstOrDefaultAsync<Inmo_Cliente>(sql, new { Id = id });
         }
 
-        public async Task<IEnumerable<Inmo_Lote>> GetLotes() 
+        public async Task<IEnumerable<Inmo_Lote>> GetLotes()
         {
             var db = dbConnection();
             var sql = @"SELECT CANT_DIAS_RESERVA, CODIGO_RESERVA, COSTO_LOTE, CTA_CTE_CTRAL, DIMENSION, DIMENSION_ESTE, DIMENSION_NORTE, DIMENSION_OESTE, DIMENSION_SUR, ESTADO, FECHA_CHEQUERA, FECHA_ESTADO, FECHA_INGRESO, ID_COMISION, ID_FRACCION, ID_LOTE, ID_MANZANA, LINDERO_ESTE, LINDERO_NORTE, LINDERO_OESTE, LINDERO_SUR, MONTO_CUOTA, NRO_FINCA, NUMERO_CONTRATO, OBSERVACION, PLAZO, PRECIO_CONTADO, PRECIO_FINANCIADO, ID_CLIENTE, ID_VENDEDOR, PRECIO_VENTA_FINAL, TOTAL_PAGADO, SALDO_DEUDOR, ULTIMA_CUOTA_PAGADA, FECHA_ULTIMO_PAGO, CUOTA_REFUERZO, PAGO_A_CUENTA, PORCENTAJE_MORA, ID_MONEDA, NOMBRE_PARA_DOCUMENTO, ENTREGA_INICIAL, USER_AUTORIZADOR, FECHA_AUTORIZACION, HORA_AUTORIZACION, ID_JEFE_VENTA, NRO_DOCUMENTO_ENTREGA_INICIAL, RGP_NRO_SECCION, RGP_NUMERO, RGP_FOLIO, RGP_ANIO_INCRIPCION, TOTAL_DEVENGADO, ID_COMISION_JEFE_VENTA, FECHA_INCRIPCION_MUNIC, MES_ATRASO, ID_COMISION_PROPIETARIO, FECHA_VENTA, ID_ORDEN, MES_PARA_VENCIMIENTO, PRECIO_REAL_VENTA, IVA_CUOTA, ID_COMISION_CAPTADOR, NRO_RESOLUCION_MUNIC, FECHA_ORDEN_ESCRITURACION, ESTADO_CONTRATO, FECHA_ESTADO_CONTRATO, MENSAJE_PARA_CLIENTE, RGP_FECHA_INSCRIPCION, ID_GERENTE_VENTA, TIPO_VENTA, IMPORTE_ENTREGA_INICIAL, CUOTA_ENTREGA_INICIAL, FORMA_PAGO, ID_MEJORA, FRACCION, MANZANA, LOTE, CONTRATO_FIRMADO
@@ -194,7 +263,7 @@ namespace GoldenGateAPI.Repositories
             var sql = @"SELECT ESTADO, FECHA_PAGO, FECHA_PROCESO, ID_FRACCION, ID_LOTE, ID_MANZANA, ID_MOVIMIENTO, IMPORTE_CHEQUE, IMPORTE_EFECTIVO, IMPORTE_MORA, NRO_COMPROBANTE, NUMERO_CUOTA, TIPO_CUOTA, TIPO_PAGO, ID_COBRADOR, MES_ATRAZO, TRANSFERIDO, IMPORTE_MORA_EXONERADA, ID_CAJA, ID_SUCURSAL, LIQUIDADO_VENDEDOR, FECHA_LIQ_VENDEDOR, LIQUIDADO_COBRADOR, FECHA_LIQ_COBRADOR, LIQUIDADO_PROPIETARIO, FECHA_LIQ_PROPIETARIO, LIQUIDADO_JEFE_VENTA, FECHA_LIQ_JEFE_VENTA, TOTAL_DEVENGADO, SECUENCIA, IMPORTE_CUOTA_EXONERADA, COMISION_PROP_CUOTA, COMISION_PROP_AJUSTE, IVA_CUOTAS, IVA_MORA, USUARIO_CARGADOR, TIPO_COMPROBANTE, LIQUIDADO_CAPTADOR, FECHA_LIQ_CAPTADOR, COMISION_CAPT_CUOTA, COMISION_CAPT_AJUSTE, TIPO_COBRO_VARIOS, IMPORTE_COBRO_VARIOS, FECHA_LIQ_GERENTE_VTA, LIQUIDADO_GERENTE_VTA, ID_COBRADOR_COMPARTIDO, PORC_COMISION_COB_COMP, NRO_CUOTA_INTERNA, NUMERO_CONTRATO, FECHA_REAL_PAGO
                         FROM INMO.PAGO_LOTES";
 
-            return await db.QueryAsync<Inmo_Pago>(sql, new {  });
+            return await db.QueryAsync<Inmo_Pago>(sql, new { });
         }
 
 

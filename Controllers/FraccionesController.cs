@@ -38,6 +38,25 @@ namespace GoldenGateAPI.Controllers
             _OraFracctionRepository = fractionRepository;
         }
 
+        [HttpPost("api/pago")]
+        public async Task<IActionResult> Pago([FromQuery] string contrato, [FromQuery] decimal cobrado_cuota, [FromQuery] decimal cobrado_mora, [FromQuery] string codigo_trans)
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] Pago()", DateTime.Now.ToString());
+
+
+            return Ok(await _OraFracctionRepository.Pago(contrato, cobrado_cuota, cobrado_mora, codigo_trans));
+        }
+
+        [HttpGet("api/cuotas/{CEDULA}")]
+        public async Task<IActionResult> GetWebCuotasByCI( Int32 CEDULA)
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] GetWebCuotasByCI()", DateTime.Now.ToString());
+
+
+            return Ok(await _OraFracctionRepository.GetWebCuotasByCI( CEDULA));
+        }
 
         [HttpGet("api/fracciones")]
         public async Task<IActionResult> GetAllFractions()
