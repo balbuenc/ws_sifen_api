@@ -148,12 +148,12 @@ namespace GoldenGateAPI.Controllers
         }
 
         [HttpGet("api/pagos")]
-        public async Task<IActionResult> GetPagos()
+        public async Task<IActionResult> GetPagos([FromQuery] string desde)
         {
 
             _logger.LogInformation("[{1}][HttpGet] GetPagos()", DateTime.Now.ToString());
 
-            return Ok(await _OraFracctionRepository.GetPagos());
+            return Ok(await _OraFracctionRepository.GetPagos(desde));
         }
 
 

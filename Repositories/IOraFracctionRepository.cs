@@ -35,6 +35,8 @@ namespace GoldenGateAPI.Repositories
 
         Task<IEnumerable<Inmo_Lote>> GetLotesByClientID(int id);
 
-        Task<IEnumerable<Inmo_Pago>> GetPagos();
+        Task<IEnumerable<Inmo_Pago>> GetPagos(string desde);
+
+    
     }
 }
