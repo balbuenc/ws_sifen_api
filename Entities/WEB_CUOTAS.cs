@@ -23,5 +23,9 @@ namespace GoldenGateAPI.Entities
         public DateTime FECHA_VENCIMIENTO { get; set; }
         public string DESCRIPCION_FRACCION { get; set; }
         public DateTime FECHA_PROCESO { get; set; }
+
+        //Campos agregados para api AI
+        public decimal MONTO_COMISION { get; set; }
+        public decimal MONTO_CUOTA_BOCA { get; set; }
     }
 }

@@ -8,21 +8,36 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper.Oracle;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
 
 namespace GoldenGateAPI.Repositories
 {
     public class OraFracctionRepository : IOraFracctionRepository
     {
         private SqlConfiguration _connectionString;
+        private string _postgresConnectionString;
 
-        public OraFracctionRepository(SqlConfiguration connectionStringg)
+        private PostgreSQL PostgresDB;
+        private readonly IConfiguration _config;
+
+    
+
+        public OraFracctionRepository(SqlConfiguration connectionStringg, IConfiguration config)
         {
+            _config = config;
             _connectionString = connectionStringg;
+            _postgresConnectionString = _config.GetConnectionString("ERPConnection");
         }
 
         protected OracleConnection dbConnection()
         {
             return new OracleConnection(_connectionString.ConnectionString);
+        }
+
+        protected NpgsqlConnection dbPostgresConenction()
+        {
+            return new NpgsqlConnection(_postgresConnectionString);
         }
 
         public async Task<IEnumerable<WEB_PAGOS>> Pago(string contrato, decimal cobrado_cuota, decimal cobrado_mora, string codigo_trans)
@@ -74,8 +89,12 @@ namespace GoldenGateAPI.Repositories
             string proc = "";
             string sql_codigo_trans = "";
             string sql = "";
+            string pgsql = "";
 
             IEnumerable<WEB_CUOTAS> web_cuotas;
+            IEnumerable<WEB_CUOTAS> cuotas;
+            IEnumerable<Fracciones_descuento> descuentos;
+
             Int32 ultimo_codigo_trans = 0;
 
             var db = dbConnection();
@@ -100,8 +119,40 @@ namespace GoldenGateAPI.Repositories
                     FROM INMO.WEB_CUOTAS
                     WHERE CODIGO_TRANS = :CODIGO_TRANS";
 
+            cuotas = await db.QueryAsync<WEB_CUOTAS>(sql, new { CODIGO_TRANS = ultimo_codigo_trans });
 
-            return await db.QueryAsync<WEB_CUOTAS>(sql, new { CODIGO_TRANS = ultimo_codigo_trans });
+
+            //accedo al postgres
+            var pg = dbPostgresConenction();
+            pgsql = @"SELECT id, fraccion, factor_descuento FROM public.fracciones_descuento; ";
+
+            descuentos = await pg.QueryAsync<Fracciones_descuento>(pgsql, new { });
+
+
+            foreach (WEB_CUOTAS item in cuotas)
+            {
+
+                foreach (Fracciones_descuento desc in descuentos)
+                {
+                    if (item.ID_FRACCION == desc.fraccion)
+                    {
+                        decimal a = item.MONTO_CUOTA * 100;
+                        decimal b = desc.factor_descuento + 100;
+                        item.MONTO_COMISION = item.MONTO_CUOTA - (a /b) ;
+                        item.MONTO_CUOTA_BOCA = item.MONTO_CUOTA - item.MONTO_COMISION;
+
+                        item.MONTO_COMISION = Math.Round(item.MONTO_COMISION);
+                        item.MONTO_CUOTA_BOCA = Math.Round(item.MONTO_CUOTA_BOCA);
+                    }
+                    else
+                    {
+                        item.MONTO_CUOTA_BOCA = item.MONTO_CUOTA;
+                    }
+                }
+            }
+
+
+            return cuotas;
         }
 
 
@@ -277,11 +328,11 @@ namespace GoldenGateAPI.Repositories
             var db = dbConnection();
 
             if (desde == null)
-            { 
-            var sql = @"SELECT ESTADO, FECHA_PAGO, FECHA_PROCESO, ID_FRACCION, ID_LOTE, ID_MANZANA, ID_MOVIMIENTO, IMPORTE_CHEQUE, IMPORTE_EFECTIVO, IMPORTE_MORA, NRO_COMPROBANTE, NUMERO_CUOTA, TIPO_CUOTA, TIPO_PAGO, ID_COBRADOR, MES_ATRAZO, TRANSFERIDO, IMPORTE_MORA_EXONERADA, ID_CAJA, ID_SUCURSAL, LIQUIDADO_VENDEDOR, FECHA_LIQ_VENDEDOR, LIQUIDADO_COBRADOR, FECHA_LIQ_COBRADOR, LIQUIDADO_PROPIETARIO, FECHA_LIQ_PROPIETARIO, LIQUIDADO_JEFE_VENTA, FECHA_LIQ_JEFE_VENTA, TOTAL_DEVENGADO, SECUENCIA, IMPORTE_CUOTA_EXONERADA, COMISION_PROP_CUOTA, COMISION_PROP_AJUSTE, IVA_CUOTAS, IVA_MORA, USUARIO_CARGADOR, TIPO_COMPROBANTE, LIQUIDADO_CAPTADOR, FECHA_LIQ_CAPTADOR, COMISION_CAPT_CUOTA, COMISION_CAPT_AJUSTE, TIPO_COBRO_VARIOS, IMPORTE_COBRO_VARIOS, FECHA_LIQ_GERENTE_VTA, LIQUIDADO_GERENTE_VTA, ID_COBRADOR_COMPARTIDO, PORC_COMISION_COB_COMP, NRO_CUOTA_INTERNA, NUMERO_CONTRATO, FECHA_REAL_PAGO
+            {
+                var sql = @"SELECT ESTADO, FECHA_PAGO, FECHA_PROCESO, ID_FRACCION, ID_LOTE, ID_MANZANA, ID_MOVIMIENTO, IMPORTE_CHEQUE, IMPORTE_EFECTIVO, IMPORTE_MORA, NRO_COMPROBANTE, NUMERO_CUOTA, TIPO_CUOTA, TIPO_PAGO, ID_COBRADOR, MES_ATRAZO, TRANSFERIDO, IMPORTE_MORA_EXONERADA, ID_CAJA, ID_SUCURSAL, LIQUIDADO_VENDEDOR, FECHA_LIQ_VENDEDOR, LIQUIDADO_COBRADOR, FECHA_LIQ_COBRADOR, LIQUIDADO_PROPIETARIO, FECHA_LIQ_PROPIETARIO, LIQUIDADO_JEFE_VENTA, FECHA_LIQ_JEFE_VENTA, TOTAL_DEVENGADO, SECUENCIA, IMPORTE_CUOTA_EXONERADA, COMISION_PROP_CUOTA, COMISION_PROP_AJUSTE, IVA_CUOTAS, IVA_MORA, USUARIO_CARGADOR, TIPO_COMPROBANTE, LIQUIDADO_CAPTADOR, FECHA_LIQ_CAPTADOR, COMISION_CAPT_CUOTA, COMISION_CAPT_AJUSTE, TIPO_COBRO_VARIOS, IMPORTE_COBRO_VARIOS, FECHA_LIQ_GERENTE_VTA, LIQUIDADO_GERENTE_VTA, ID_COBRADOR_COMPARTIDO, PORC_COMISION_COB_COMP, NRO_CUOTA_INTERNA, NUMERO_CONTRATO, FECHA_REAL_PAGO
                         FROM INMO.PAGO_LOTES";
 
-            return await db.QueryAsync<Inmo_Pago>(sql, new { });
+                return await db.QueryAsync<Inmo_Pago>(sql, new { });
             }
             else
             {
@@ -293,7 +344,7 @@ namespace GoldenGateAPI.Repositories
             }
         }
 
-        
+
 
     }
 }
