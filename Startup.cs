@@ -37,22 +37,31 @@ namespace GoldenGateAPI
             services.AddControllers();
 
             // configure basic authentication 
-            services.AddAuthentication("BasicAuthentication")
-                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+            //services.AddAuthentication("BasicAuthentication")
+            //    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
             // configure DI for application services
             
             //var sqlConnectionConfiguration = new SqlConfiguration(Configuration.GetConnectionString("ERPConnection"));
-            var sqlConnectionConfiguration = new SqlConfiguration(Configuration.GetConnectionString("WebConnectionString"));
+            //var sqlConnectionConfiguration = new SqlConfiguration(Configuration.GetConnectionString("WebConnectionString"));
+            var sqlConnectionConfiguration = new SqlConfiguration(Configuration.GetConnectionString("SqlConnectionString"));
             services.AddSingleton(sqlConnectionConfiguration);
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IOraFracctionRepository, OraFracctionRepository>();
+            services.AddScoped<ISifenRepository, SifenRepository>();
+
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSwagger();
+            app.UseSwaggerUI(
+                c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sifen API v1")
+                ) ;
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
