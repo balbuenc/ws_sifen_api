@@ -12,7 +12,7 @@ namespace GoldenGateAPI.Data
 {
     public class PostgreSQL
     {
- 
+
         public NpgsqlConnection connection;
 
         public PostgreSQL()
@@ -32,7 +32,7 @@ namespace GoldenGateAPI.Data
                 objresutl.Load(reader);
 
                 reader.Close();
-              
+
             }
             catch (Exception ex)
             {

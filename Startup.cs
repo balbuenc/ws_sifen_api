@@ -48,7 +48,7 @@ namespace GoldenGateAPI
             services.AddSingleton(sqlConnectionConfiguration);
 
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IOraFracctionRepository, OraFracctionRepository>();
+            //services.AddScoped<IOraFracctionRepository, OraFracctionRepository>();
             services.AddScoped<ISifenRepository, SifenRepository>();
 
             services.AddSwaggerGen();

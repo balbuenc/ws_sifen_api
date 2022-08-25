@@ -90,7 +90,60 @@ namespace GoldenGateAPI.Repositories
             return await db.QueryAsync<Dte>(sql, new { });
         }
 
-        public async Task<IEnumerable<Item>> GetDteByID(int Id)
+        public async Task<IEnumerable<Dte>> GetDteByID(Int32 Id)
+        {
+
+            string sql = "";
+            var db = dbConnection();
+
+            sql = @"SELECT		de.id_documento_electronico, 
+								[dbo].[f_generar_CDC] (de.id_documento_electronico) cdc,
+								de.tipoDocumento, 
+								de.establecimiento, 
+								de.codigoSeguridadAleatorio, 
+								de.punto, 
+								de.numero, 
+								de.descripcion, 
+								de.observacion, 
+								de.tipoContribuyente, 
+								de.fecha, 
+								de.tipoEmision, 
+								de.tipoTransaccion, 
+								de.tipoImpuesto, 
+								de.moneda, 
+								de.condicionAnticipo, 
+								de.condicionTipoCambio, 
+								de.cambio, 
+								de.id_cliente, 
+								de.id_usuario, 
+								de.id_certificado, 
+								de.data, 
+								de.id_estado, 
+								TiposEmision.tipoEmisionDescripcion, 
+								Estados.estado, 
+								TiposImpuesto.TipoImpuestoDescripcion, 
+								TiposDocumentoElectronicos.Descripcion AS TipoDocumentoElectronicoDescripcion, 
+								Establecimientos.denominacion, 
+								PuntosExpedicion.punto AS PuntoExpedicionDescripcion, 
+								Clientes.razonSocial, 
+								TiposTransaccion.tipoTransaccionDescripcion
+				FROM            DocumentosElectronicos AS de 
+								inner join Estados on Estados.id_estado = de.id_estado 
+								left outer join Clientes ON de.id_cliente = Clientes.id_cliente
+								left outer join  TiposContribuyente on TiposContribuyente.tipo = de.tipoContribuyente
+								left outer join TiposEmision on TiposEmision.tipo = de.tipoEmision
+								left outer join TiposDocumentoElectronicos ON de.tipoDocumento = TiposDocumentoElectronicos.tipoDocumento 
+								left outer join TiposImpuesto ON de.tipoImpuesto = TiposImpuesto.tipo 
+								left outer join TiposTransaccion ON de.tipoTransaccion = TiposTransaccion.tipo 
+								left outer join Establecimientos ON de.establecimiento = Establecimientos.codigo 
+								left outer join PuntosExpedicion ON Establecimientos.codigo = PuntosExpedicion.codigo 
+                where de.id_documento_electronico = @Id";
+
+
+            return await db.QueryAsync<Dte>(sql, new { Id = Id });
+        }
+
+        public async Task<IEnumerable<Item>> GetDteItemsByID(Int32 Id)
         {
 
             string sql = "";

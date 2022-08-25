@@ -9,7 +9,9 @@ namespace GoldenGateAPI.Repositories
     public interface ISifenRepository
     {
         Task<IEnumerable<Dte>> GetAllDtes();
-        Task<IEnumerable<Item>> GetDteByID(int Id);
+        Task<IEnumerable<Item>> GetDteItemsByID(Int32 Id);
+
+        Task<IEnumerable<Dte>> GetDteByID(Int32 Id);
         Task<bool> InsertDTE(Dte dte);
 
     }

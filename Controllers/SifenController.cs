@@ -38,7 +38,7 @@ namespace GoldenGateAPI.Controllers
             return Ok(await _SifenRepository.GetAllDtes());
         }
 
-        [HttpGet("api/dte/item/{Id}")]
+        [HttpGet("api/dte/{Id}")]
         public async Task<IActionResult> GetDteByID(Int32 Id)
         {
 
@@ -46,6 +46,16 @@ namespace GoldenGateAPI.Controllers
 
 
             return Ok(await _SifenRepository.GetDteByID(Id));
+        }
+
+        [HttpGet("api/dte/{Id}/item")]
+        public async Task<IActionResult> GetDteItemsByID(Int32 Id)
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] GetDteItemsByID()", DateTime.Now.ToString());
+
+
+            return Ok(await _SifenRepository.GetDteItemsByID(Id));
         }
 
         [HttpPost("api/dte")]
