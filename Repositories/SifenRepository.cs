@@ -365,7 +365,7 @@ namespace GoldenGateAPI.Repositories
 
         public async Task<IEnumerable<Response>> SendDTE(Command command)
         {
-            
+
             try
             {
                 var db = dbConnection();
@@ -377,7 +377,8 @@ namespace GoldenGateAPI.Repositories
 
 
 
-                return await db.QueryAsync<Response>(sql, new {
+                return await db.QueryAsync<Response>(sql, new
+                {
                     command.id_documento_electronico,
                     command.command,
                     command.numero
@@ -388,5 +389,28 @@ namespace GoldenGateAPI.Repositories
                 throw ex;
             }
         }
+
+        public async Task<IEnumerable<Operation>> GetOperationsByDteID(Int32 Id)
+        {
+
+            try
+            {
+                var db = dbConnection();
+
+                var sql = @"select * from operaciones where id_documento_electronico = @Id order by fecha desc;";
+
+
+
+                return await db.QueryAsync<Operation>(sql, new
+                {
+                    Id = Id
+                });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
+
 }

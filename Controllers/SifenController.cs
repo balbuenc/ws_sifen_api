@@ -48,6 +48,17 @@ namespace GoldenGateAPI.Controllers
             return Ok(await _SifenRepository.GetDteByID(Id));
         }
 
+        [HttpGet("api/dte/{Id}/operations")]
+        public async Task<IActionResult> GetOperationsByDteID(Int32 Id)
+        {
+
+            _logger.LogInformation("[{1}][HttpGet] GetOperationsByDteID()", DateTime.Now.ToString());
+
+
+            return Ok(await _SifenRepository.GetOperationsByDteID(Id));
+        }
+
+
         [HttpGet("api/dte/{Id}/item")]
         public async Task<IActionResult> GetDteItemsByID(Int32 Id)
         {
@@ -58,7 +69,7 @@ namespace GoldenGateAPI.Controllers
             return Ok(await _SifenRepository.GetDteItemsByID(Id));
         }
 
-        [HttpPost("api/dte/{Id}/item")]
+        [HttpPost("api/dte/item")]
         public async Task<IActionResult> InsertItem([FromBody] Item item)
         {
             if (item == null)
