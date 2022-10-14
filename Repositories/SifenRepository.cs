@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
+using System.Windows.Input;
 
 namespace GoldenGateAPI.Repositories
 {
@@ -259,6 +260,128 @@ namespace GoldenGateAPI.Repositories
                 );
 
                 return result > 0;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public async Task<bool> InsertItem(Item item)
+        {
+            try
+            {
+                var db = dbConnection();
+
+                var sql = @"EXECUTE [dbo].[sp_Items_insert] 
+                                       @id_documento_electronico
+                                      ,@codigo
+                                      ,@descripcion
+                                      ,@observacion
+                                      ,@partidaArancelaria
+                                      ,@ncm
+                                      ,@unidadMedida
+                                      ,@cantidad
+                                      ,@precioUnitario
+                                      ,@cambio
+                                      ,@descuento
+                                      ,@anticipo
+                                      ,@pais
+                                      ,@tolerancia
+                                      ,@toleranciaCantidad
+                                      ,@toleranciaPorcentaje
+                                      ,@cdcAnticipo
+                                      ,@ivaTipo
+                                      ,@ivaBase
+                                      ,@iva
+                                      ,@lote
+                                      ,@vencimiento
+                                      ,@numeroSerie
+                                      ,@numeroPedido
+                                      ,@numeroSeguimiento";
+
+                var result = await db.ExecuteAsync(sql, new
+                {
+                    item.id_documento_electronico
+                    ,
+                    item.codigo
+                    ,
+                    item.descripcion
+                    ,
+                    item.observacion
+                    ,
+                    item.partidaArancelaria
+                    ,
+                    item.ncm
+                    ,
+                    item.unidadMedida
+                    ,
+                    item.cantidad
+                    ,
+                    item.precioUnitario
+                    ,
+                    item.cambio
+                    ,
+                    item.descuento
+                    ,
+                    item.anticipo
+                    ,
+                    item.pais
+                    ,
+                    item.tolerancia
+                    ,
+                    item.toleranciaCantidad
+                    ,
+                    item.toleranciaPorcentaje
+                    ,
+                    item.cdcAnticipo
+                    ,
+                    item.ivaTipo
+                    ,
+                    item.ivaBase
+                    ,
+                    item.iva
+                    ,
+                    item.lote
+                    ,
+                    item.vencimiento
+                    ,
+                    item.numeroSerie
+                    ,
+                    item.numeroPedido
+                    ,
+                    item.numeroSeguimiento
+                }
+                );
+
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<Response>> SendDTE(Command command)
+        {
+            
+            try
+            {
+                var db = dbConnection();
+
+                var sql = @"EXECUTE [api].[sp_call_sifen] 
+                                       @id_documento_electronico
+                                      ,@command
+                                      ,@numero";
+
+
+
+                return await db.QueryAsync<Response>(sql, new {
+                    command.id_documento_electronico,
+                    command.command,
+                    command.numero
+                });
             }
             catch (Exception ex)
             {
