@@ -82,6 +82,20 @@ namespace GoldenGateAPI.Controllers
 
         }
 
+
+        [HttpPost("api/dte/items")]
+        public async Task<IActionResult> InsertItems([FromBody] List<Item> items)
+        {
+            if (items == null)
+                return BadRequest();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            return Ok(await _SifenRepository.InsertItems(items));
+
+        }
+
         [HttpPost("api/dte")]
         public async Task<IActionResult> InsertDTE([FromBody] Dte dte)
         {
@@ -105,6 +119,19 @@ namespace GoldenGateAPI.Controllers
                 return BadRequest();
 
             return Ok(await _SifenRepository.SendDTE(command));
+
+        }
+
+        [HttpPost("api/dte/sendBatchDTE")]
+        public async Task<IActionResult> SendBatchDTE([FromBody] Command command)
+        {
+            if (command == null)
+                return BadRequest();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            return Ok(await _SifenRepository.SendBatchDTE(command));
 
         }
 

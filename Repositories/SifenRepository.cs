@@ -67,7 +67,11 @@ namespace GoldenGateAPI.Repositories
 								de.id_usuario, 
 								de.id_certificado, 
 								de.data, 
-								de.id_estado, 
+								de.id_estado,
+								de.condicionOperacion,
+								de.condicionCredito,
+								de.plazoCredito,
+
 								TiposEmision.tipoEmisionDescripcion, 
 								Estados.estado, 
 								TiposImpuesto.TipoImpuestoDescripcion, 
@@ -75,7 +79,10 @@ namespace GoldenGateAPI.Repositories
 								Establecimientos.denominacion, 
 								PuntosExpedicion.punto AS PuntoExpedicionDescripcion, 
 								Clientes.razonSocial, 
-								TiposTransaccion.tipoTransaccionDescripcion
+								TiposTransaccion.tipoTransaccionDescripcion,
+								CondicionesOperacion.CondicionDescripcion,
+								CondicionesCredito.creditoDescripcion,
+								Monedas.monedaDescripcion
 				FROM            DocumentosElectronicos AS de 
 								inner join Estados on Estados.id_estado = de.id_estado 
 								left outer join Clientes ON de.id_cliente = Clientes.id_cliente
@@ -85,7 +92,10 @@ namespace GoldenGateAPI.Repositories
 								left outer join TiposImpuesto ON de.tipoImpuesto = TiposImpuesto.tipo 
 								left outer join TiposTransaccion ON de.tipoTransaccion = TiposTransaccion.tipo 
 								left outer join Establecimientos ON de.establecimiento = Establecimientos.codigo 
-								left outer join PuntosExpedicion ON Establecimientos.codigo = PuntosExpedicion.codigo ";
+								left outer join PuntosExpedicion ON Establecimientos.codigo = PuntosExpedicion.codigo
+								left outer join CondicionesOperacion on CondicionesOperacion.condicion = de.condicionOperacion
+								left outer join CondicionesCredito on CondicionesCredito.credito = de.condicionCredito
+								left outer join Monedas on Monedas.moneda = de.moneda ";
 
 
             return await db.QueryAsync<Dte>(sql, new { });
@@ -119,7 +129,11 @@ namespace GoldenGateAPI.Repositories
 								de.id_usuario, 
 								de.id_certificado, 
 								de.data, 
-								de.id_estado, 
+								de.id_estado,
+								de.condicionOperacion,
+								de.condicionCredito,
+								de.plazoCredito,
+
 								TiposEmision.tipoEmisionDescripcion, 
 								Estados.estado, 
 								TiposImpuesto.TipoImpuestoDescripcion, 
@@ -127,7 +141,10 @@ namespace GoldenGateAPI.Repositories
 								Establecimientos.denominacion, 
 								PuntosExpedicion.punto AS PuntoExpedicionDescripcion, 
 								Clientes.razonSocial, 
-								TiposTransaccion.tipoTransaccionDescripcion
+								TiposTransaccion.tipoTransaccionDescripcion,
+								CondicionesOperacion.CondicionDescripcion,
+								CondicionesCredito.creditoDescripcion,
+								Monedas.monedaDescripcion
 				FROM            DocumentosElectronicos AS de 
 								inner join Estados on Estados.id_estado = de.id_estado 
 								left outer join Clientes ON de.id_cliente = Clientes.id_cliente
@@ -137,7 +154,10 @@ namespace GoldenGateAPI.Repositories
 								left outer join TiposImpuesto ON de.tipoImpuesto = TiposImpuesto.tipo 
 								left outer join TiposTransaccion ON de.tipoTransaccion = TiposTransaccion.tipo 
 								left outer join Establecimientos ON de.establecimiento = Establecimientos.codigo 
-								left outer join PuntosExpedicion ON Establecimientos.codigo = PuntosExpedicion.codigo 
+								left outer join PuntosExpedicion ON Establecimientos.codigo = PuntosExpedicion.codigo
+								left outer join CondicionesOperacion on CondicionesOperacion.condicion = de.condicionOperacion
+								left outer join CondicionesCredito on CondicionesCredito.credito = de.condicionCredito
+								left outer join Monedas on Monedas.moneda = de.moneda
                 where de.id_documento_electronico = @Id";
 
 
@@ -186,56 +206,57 @@ namespace GoldenGateAPI.Repositories
 
 
 
-        public async Task<bool> InsertDTE(Dte dte)
+        public async Task<IEnumerable<Dte>> InsertDTE(Dte dte)
         {
             try
             {
                 var db = dbConnection();
 
-                var sql = @"INSERT INTO [dbo].[DocumentosElectronicos]
-                                   ([tipoDocumento]
-                                   ,[establecimiento]
-                                   ,[codigoSeguridadAleatorio]
-                                   ,[punto]
-                                   ,[numero]
-                                   ,[descripcion]
-                                   ,[observacion]
-                                   ,[tipoContribuyente]
-                                   ,[fecha]
-                                   ,[tipoEmision]
-                                   ,[tipoTransaccion]
-                                   ,[tipoImpuesto]
-                                   ,[moneda]
-                                   ,[condicionAnticipo]
-                                   ,[condicionTipoCambio]
-                                   ,[cambio]
-                                   ,[id_cliente]
-                                   ,[id_usuario]
-                                   ,[id_certificado]
-                                   ,[id_estado])
-                             VALUES
-                                   (@tipoDocumento, 
-                                   @establecimiento,
-                                   @codigoSeguridadAleatorio,
-                                   @punto, 
-                                   @numero,
-                                   @descripcion,
-                                   @observacion,
-                                   @tipoContribuyente,
-                                   @fecha, 
-                                   @tipoEmision,
-                                   @tipoTransaccion,
-                                   @tipoImpuesto,
-                                   @moneda,
-                                   @condicionAnticipo,
-                                   @condicionTipoCambio,
-                                   @cambio, 
-                                   @id_cliente,
-                                   @id_usuario,
-                                   @id_certificado,
-                                   1)";
+                var sql = @"EXECUTE [dbo].[sp_Insert_dte] 
+                                            @tipoDocumento, 
+                                            @establecimiento,
+                                            @codigoSeguridadAleatorio,
+                                            @punto, 
+                                            @numero,
+                                            @descripcion,
+                                            @observacion,
+                                            @tipoContribuyente,
+                                            @fecha, 
+                                            @tipoEmision,
+                                            @tipoTransaccion,
+                                            @tipoImpuesto,
+                                            @moneda,
+                                            @condicionAnticipo,
+                                            @condicionTipoCambio,
+                                            @cambio, 
+                                            @id_usuario,
+                                            @id_certificado,
+                                            @condicionOperacion,
+                                            @condicionCredito,
+                                            @plazoCredito,
+                                            @presencia,
+                                            @tipoPago,
 
-                var result = await db.ExecuteAsync(sql, new
+                                            @cli_contribuyente,
+                                            @cli_ruc,
+                                            @cli_razonSocial,
+                                            @cli_nombreFantasia,
+                                            @cli_tipoOperacion,
+                                            @cli_direccion,
+                                            @cli_numeroCasa,
+                                            @cli_departamento,
+                                            @cli_distrito,
+                                            @cli_ciudad,
+                                            @cli_pais,
+                                            @cli_TipoContribuyente,
+                                            @cli_documentoTipo,
+                                            @cli_documentoNumero,
+                                            @cli_telefono,
+                                            @cli_celular,
+                                            @cli_email,
+                                            @cli_codigo";
+
+                var result = await db.QueryAsync<Dte>(sql, new
                 {
                     dte.tipoDocumento,
                     dte.establecimiento,
@@ -252,14 +273,38 @@ namespace GoldenGateAPI.Repositories
                     dte.moneda,
                     dte.condicionAnticipo,
                     dte.condicionTipoCambio,
-                    dte.cambio,
-                    dte.id_cliente,
+                    dte.cambio,                 
                     dte.id_usuario,
-                    dte.id_certificado
+                    dte.id_certificado,
+                    dte.condicionOperacion,
+                    dte.condicionCredito,
+                    dte.plazoCredito,
+                    dte.presencia,
+                    dte.tipoPago,
+
+                    //cliente
+                    dte.cli_contribuyente,
+                    dte.cli_ruc,
+                    dte.cli_razonSocial,
+                    dte.cli_nombreFantasia,
+                    dte.cli_tipoOperacion,
+                    dte.cli_direccion,
+                    dte.cli_numeroCasa,
+                    dte.cli_departamento,
+                    dte.cli_distrito,
+                    dte.cli_ciudad,
+                    dte.cli_pais,
+                    dte.cli_tipoContribuyente,
+                    dte.cli_documentoTipo,
+                    dte.cli_documentoNumero,
+                    dte.cli_telefono,
+                    dte.cli_celular,
+                    dte.cli_email,
+                    dte.cli_codigo
                 }
                 );
 
-                return result > 0;
+                return result;
             }
             catch (Exception ex)
             {
@@ -363,6 +408,82 @@ namespace GoldenGateAPI.Repositories
             }
         }
 
+
+        public async Task<bool> InsertItems(List<Item> items)
+        {
+            try
+            {
+                var db = dbConnection();
+
+                foreach (var i in items)
+                {
+                    var sql = @"EXECUTE [dbo].[sp_Items_insert] 
+                                       @id_documento_electronico
+                                      ,@codigo
+                                      ,@descripcion
+                                      ,@observacion
+                                      ,@partidaArancelaria
+                                      ,@ncm
+                                      ,@unidadMedida
+                                      ,@cantidad
+                                      ,@precioUnitario
+                                      ,@cambio
+                                      ,@descuento
+                                      ,@anticipo
+                                      ,@pais
+                                      ,@tolerancia
+                                      ,@toleranciaCantidad
+                                      ,@toleranciaPorcentaje
+                                      ,@cdcAnticipo
+                                      ,@ivaTipo
+                                      ,@ivaBase
+                                      ,@iva
+                                      ,@lote
+                                      ,@vencimiento
+                                      ,@numeroSerie
+                                      ,@numeroPedido
+                                      ,@numeroSeguimiento";
+
+                    var result = await db.ExecuteAsync(sql, new
+                    {
+                       i.id_documento_electronico,
+                       i.codigo,
+                       i.descripcion,
+                       i.observacion,
+                       i.partidaArancelaria,
+                       i.ncm,
+                       i.unidadMedida,
+                       i.cantidad,
+                       i.precioUnitario,
+                       i.cambio,
+                       i.descuento,
+                       i.anticipo,
+                       i.pais,
+                       i.tolerancia,
+                       i.toleranciaCantidad,
+                       i.toleranciaPorcentaje,
+                       i.cdcAnticipo,
+                       i.ivaTipo,
+                       i.ivaBase,
+                       i.iva,
+                       i.lote,
+                       i.vencimiento,
+                       i.numeroSerie,
+                       i.numeroPedido,
+                       i.numeroSeguimiento
+                    }
+                    );
+
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public async Task<IEnumerable<Response>> SendDTE(Command command)
         {
 
@@ -371,6 +492,33 @@ namespace GoldenGateAPI.Repositories
                 var db = dbConnection();
 
                 var sql = @"EXECUTE [api].[sp_call_sifen] 
+                                       @id_documento_electronico
+                                      ,@command
+                                      ,@numero";
+
+
+
+                return await db.QueryAsync<Response>(sql, new
+                {
+                    command.id_documento_electronico,
+                    command.command,
+                    command.numero
+                });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<Response>> SendBatchDTE(Command command)
+        {
+
+            try
+            {
+                var db = dbConnection();
+
+                var sql = @"EXECUTE [api].[sp_call_sifen_batch] 
                                        @id_documento_electronico
                                       ,@command
                                       ,@numero";

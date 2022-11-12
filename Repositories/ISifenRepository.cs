@@ -12,12 +12,16 @@ namespace GoldenGateAPI.Repositories
         Task<IEnumerable<Item>> GetDteItemsByID(Int32 Id);
 
         Task<IEnumerable<Dte>> GetDteByID(Int32 Id);
-        Task<bool> InsertDTE(Dte dte);
+        Task<IEnumerable<Dte>> InsertDTE(Dte dte);
         Task<bool> InsertItem(Item item);
+        Task<bool> InsertItems(List<Item> items);
         Task<IEnumerable<Response>> SendDTE(Command command);
+        Task<IEnumerable<Response>> SendBatchDTE(Command command);
 
         Task<IEnumerable<Operation>> GetOperationsByDteID(Int32 Id);
 
+
+      
 
 
 
