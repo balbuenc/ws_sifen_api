@@ -55,6 +55,21 @@ namespace GoldenGateAPI.Entities
         public int presencia { get; set; }
         public int tipoPago { get; set; }
 
+        public int tp_Tc_Denominacion { get; set; }
+
+        public int tp_Tc_Forma_Procesamiento { get; set; }
+
+        public string tp_Ch_Numero { get; set; }
+        public string tp_Ch_Banco { get; set; }
+
+        public int nc_Motivo_Emision { get; set; }
+        public int nc_Tipo_Documento_Asociado { get; set; }
+        public string nc_CDC_Referencia { get; set; }
+        public int nc_Timbrado_Referencia { get; set; }
+        public int nc_Tipo_Documento_Impreso { get; set; }
+        public DateTime nc_Fecha_Emision_Referencia { get; set; }
+
+
 
         //CLIENTE
         public int cli_contribuyente { get; set; }
